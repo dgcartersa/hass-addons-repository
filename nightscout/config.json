@@ -52,7 +52,8 @@
       "bgi",
       "pump",
       "openaps"
-    ]
+    ],
+    "env_vars": []
   },
   "schema": {
     "log_level": "list(trace|debug|info|notice|warning|error|fatal)?",
@@ -66,6 +67,12 @@
     "import_config_url": "str?",
     "plugins": [
       "str"
-    ]
+    ],
+  "env_vars": [
+    {
+      "name": "str",
+      "value": "str"
+    }
+  ]
   }
 }
