@@ -3,4 +3,3 @@ addons:
   nightscout:
     repository: dgcartersa/addon-nightscout
     target: nightscout
-    image: dgcartersa/image-{arch}-addon-nightscout
