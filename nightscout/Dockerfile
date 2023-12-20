@@ -23,7 +23,8 @@ RUN rm -rf /var/lib/apt/lists/*
 
 RUN git clone --depth 1 --branch ${NIGHTSCOUT_VERSION} https://github.com/nightscout/cgm-remote-monitor.git /opt/app
 
-RUN npm install \
+RUN cd /opt/app \
+    && npm install \
     && npm run postinstall \
     && npm run env \
     && npm audit fix
