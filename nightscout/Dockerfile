@@ -7,7 +7,7 @@ ENV LANG C.UTF-8
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && \
-    apt-get -y --no-install-recommends \
+    apt-get -y --no-install-recommends install \
     mongodb-server \
     nodejs \
     npm \
