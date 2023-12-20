@@ -6,7 +6,8 @@ ARG NIGHTSCOUT_VERSION=15.0.0
 ENV LANG C.UTF-8
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN apt install --no-cache \
+RUN apt-get update && \
+    apt-get -y --no-install-recommends \
     mongodb-server \
     nodejs \
     npm \
@@ -15,6 +16,10 @@ RUN apt install --no-cache \
     python2.7 \
     nginx \
     libnginx-mod-http-lua
+
+RUN apt-get autoremove -y
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/*
 
 RUN git clone --depth 1 --branch ${NIGHTSCOUT_VERSION} https://github.com/nightscout/cgm-remote-monitor.git /opt/app
 
