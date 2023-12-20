@@ -1,50 +1,25 @@
 ARG BUILD_FROM
-# hadolint ignore=DL3006
 FROM $BUILD_FROM
 
-# Set shell
+ARG NIGHTSCOUT_VERSION=15.0.0
+
+ENV LANG C.UTF-8
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN mkdir -p /opt/app
-COPY . /opt
-WORKDIR /opt/app
+RUN apk add --no-cache \
+    mongodb-server \
+    nodejs \
+    npm \
+    webpack \
+    git \
+    nginx
 
-ARG BUILD_ARCH=amd64
-ARG NIGHTSCOUT_VERSION=14.2.6
-# hadolint ignore=DL3008
-RUN \
-    URL="http://archive.ubuntu.com/ubuntu/" \
-    && if [ "${BUILD_ARCH}" = "aarch64" ]; then \
-        URL="http://ports.ubuntu.com/ubuntu-ports/"; \
-    fi \
-    && echo "deb ${URL} bionic universe" \
-        > /etc/apt/sources.list.d/bionic-universe.list \
-    \
-    && echo "deb ${URL} bionic main" \
-        > /etc/apt/sources.list.d/bionic-main.list \
-    \
-    && curl -sL "https://deb.nodesource.com/setup_14.x" | bash - \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-        mongodb-server \
-        nodejs \
-        git \
-        webpack \
-        build-essential \
-        python2.7 \
-        nginx \
-        libnginx-mod-http-lua \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    \
-    && git clone --depth 1 --branch ${NIGHTSCOUT_VERSION} https://github.com/nightscout/cgm-remote-monitor.git /opt/app \
-    \
-    && npm install \
+RUN git clone --depth 1 --branch ${NIGHTSCOUT_VERSION} https://github.com/nightscout/cgm-remote-monitor.git /opt/app
+
+RUN npm install \
     && npm run postinstall \
     && npm run env \
     && npm audit fix
-
-RUN npm install jsdom@21.1.1
 
 VOLUME ["/data/db"]
 
