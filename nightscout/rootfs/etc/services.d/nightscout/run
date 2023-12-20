@@ -1,0 +1,74 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck disable=SC2191
+# ==============================================================================
+# Home Assistant Add-on: Nightscout
+# Runs Nightscout
+# ==============================================================================
+declare -a options
+
+# Wait for MongoDB to become available
+bashio::net.wait_for 27017
+
+bashio::log.info 'Starting the Nightscout server...'
+
+# Config server variables
+readonly api_key=$(bashio::config 'api_key')
+bashio::log.debug "Setting up API KEY: ${api_key}"
+readonly mongodb_uri=$(bashio::config 'mongodb_uri')
+bashio::log.debug "Setting up MONGODB_URI: ${mongodb_uri}"
+
+
+export API_SECRET="${api_key}"
+export HOSTNAME="127.0.0.1"
+export PORT=1337
+#export MONGO_CONNECTION="mongodb://127.0.0.1:27017/admin"
+export MONGODB_URI="${mongodb_uri}"
+export INSECURE_USE_HTTP=true
+export SECURE_HSTS_HEADER=false
+
+if bashio::config.has_value 'auth_default_roles'; then
+    readonly auth_default_roles=$(bashio::config 'auth_default_roles')
+    export AUTH_DEFAULT_ROLES="${auth_default_roles}"
+fi
+
+# Enable plugins
+readonly plugins=$(bashio::config 'plugins')
+joined=""
+delim=""
+for item in ${plugins}; do
+    joined="$joined$delim$item"
+    delim=" "
+done
+bashio::log.info "Enable plugins: ${joined}"
+export ENABLE="${joined}"
+
+# Theme
+if bashio::config.has_value 'theme'; then
+    readonly theme=$(bashio::config 'theme')
+    bashio::log.info "Setting theme to: ${theme}"
+    export THEME="${theme}"
+fi
+
+# Theme
+if bashio::config.has_value 'import_config_url'; then
+    readonly import_config_url=$(bashio::config 'import_config_url')
+    bashio::log.info "Importing config from URL: ${import_config_url}"
+    export IMPORT_CONFIG="${import_config_url}"
+fi
+
+# Load custom environment variables
+bashio::log.info "Setting up custom environment variables"
+for var in $(bashio::config 'env_vars|keys'); do
+    name=$(bashio::config "env_vars[${var}].name")
+    value=$(bashio::config "env_vars[${var}].value")
+    bashio::log.info "Setting ${name} to ${value}"
+    export "${name}=${value}"
+done
+
+# Change current working directory
+cd /opt/app || bashio::exit.nok 'Failed changing working directory'
+
+npm install
+
+# Run Nightscout server
+exec node server.js
