@@ -19,8 +19,8 @@ bashio::log.debug "Setting up MONGODB_URI: ${mongodb_uri}"
 
 
 export API_SECRET="${api_key}"
-export HOSTNAME="127.0.0.1"
-export PORT=1337
+export HOSTNAME="0.0.0.0"
+export PORT=5423
 #export MONGO_CONNECTION="mongodb://127.0.0.1:27017/admin"
 export MONGODB_URI="${mongodb_uri}"
 export INSECURE_USE_HTTP=true

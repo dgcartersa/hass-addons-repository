@@ -1,28 +1,27 @@
-ARG BUILD_FROM
+ARG BUILD_FROM=ghcr.io/hassio-addons/ubuntu-base:8.1.1
 FROM $BUILD_FROM
 
 ARG NIGHTSCOUT_VERSION=15.0.0
 ARG NODE_MAJOR=16
 
 ENV LANG C.UTF-8
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN apt-get update \
-    && apt-get install -y ca-certificates curl gnupg
+RUN mkdir -p /opt/app
+WORKDIR /opt/app
 
-RUN mkdir -p /etc/apt/keyrings \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+RUN URL="http://archive.ubuntu.com/ubuntu/" \
+    && if [ "${BUILD_ARCH}" = "aarch64" ]; then \
+        URL="http://ports.ubuntu.com/ubuntu-ports/"; \
+    fi \
+    && echo "deb ${URL} bionic universe" > /etc/apt/sources.list.d/bionic-universe.list \
+    && echo "deb ${URL} bionic main" > /etc/apt/sources.list.d/bionic-main.list
 
 RUN apt-get update && \
-    apt-get -y --no-install-recommends install \
+    apt-get install -y --no-install-recommends \
     mongodb-server \
     nodejs \
     webpack \
-    git \
-    python2.7 \
-    nginx \
-    libnginx-mod-http-lua
+    git
 
 RUN apt-get autoremove -y
 RUN apt-get clean
