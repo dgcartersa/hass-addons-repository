@@ -18,7 +18,6 @@ RUN apt-get update && \
     apt-get -y --no-install-recommends install \
     mongodb-server \
     nodejs \
-    npm \
     webpack \
     git \
     python2.7 \
