@@ -7,7 +7,7 @@ ARG NODE_MAJOR=20
 ENV LANG C.UTF-8
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN curl -sL "https://deb.nodesource.com/setup_14.x" | bash -
+RUN curl -sL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | bash -
 
 RUN apt-get update && \
     apt-get -y --no-install-recommends install \
