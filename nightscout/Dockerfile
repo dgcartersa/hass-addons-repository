@@ -1,46 +1,42 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/ubuntu-base:8.1.1
+ARG BUILD_FROM
 FROM $BUILD_FROM
 
+# Variables
 ARG NIGHTSCOUT_VERSION=15.0.0
 ARG NODE_MAJOR=16
 
 ENV LANG C.UTF-8
 
+# Working folders
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
-RUN URL="http://archive.ubuntu.com/ubuntu/" \
-    && if [ "${BUILD_ARCH}" = "aarch64" ]; then \
-        URL="http://ports.ubuntu.com/ubuntu-ports/"; \
-    fi \
-    && echo "deb ${URL} bionic universe" > /etc/apt/sources.list.d/bionic-universe.list \
-    && echo "deb ${URL} bionic main" > /etc/apt/sources.list.d/bionic-main.list
+# Repository Setup
+RUN apt-get update && apt-get install -y --no-install-recommends gnupg
+RUN curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor \
+    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg -o /etc/apt/keyrings/nodesource.gpg --dearmor \
+    && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
+    && echo "deb [ arch=amd64,arm64 signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    mongodb-server \
+# Package installation
+RUN apt update && apt install -y --no-install-recommends \
+    mongodb-org \
     nodejs \
-    webpack \
     git
 
-RUN apt-get autoremove -y
-RUN apt-get clean
-RUN rm -rf /var/lib/apt/lists/*
-
+# Nightscout Installation
 RUN git clone --depth 1 --branch ${NIGHTSCOUT_VERSION} https://github.com/nightscout/cgm-remote-monitor.git /opt/app
 
 RUN cd /opt/app \
-    && npm install \
-    && npm run postinstall \
-    && npm run env \
-    && npm audit fix
+    && npm install
 
+# Configure Volumes
 VOLUME ["/data/db"]
 
-# Copy root filesystem
+# Copy Root Filesystem
 COPY rootfs /
 
-# Build arguments
+# Build Arguments
 ARG BUILD_DATE
 ARG BUILD_REF
 ARG BUILD_VERSION
