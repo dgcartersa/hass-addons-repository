@@ -7,12 +7,9 @@ ARG NODE_MAJOR=16
 
 ENV LANG C.UTF-8
 
-# Working folders
-RUN mkdir -p /opt/app
-WORKDIR /opt/app
-
 # Node Swtup
-RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh \
+RUN cd /tmp \
+    && curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh \
     && chmod 500 nsolid_setup_deb.sh \
     && ./nsolid_setup_deb.sh 16
 
@@ -21,6 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     mongodb-server \
     nodejs \
     git
+
+# Working folders
+RUN mkdir -p /opt/app
+WORKDIR /opt/app
 
 # Nightscout Installation
 RUN git clone --depth 1 --branch ${NIGHTSCOUT_VERSION} https://github.com/nightscout/cgm-remote-monitor.git /opt/app
