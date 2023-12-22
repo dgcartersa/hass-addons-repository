@@ -1,5 +1,5 @@
 name: Nightscout
-version: 2.0.1
+version: 2.0.2
 slug: nightscout
 description:
   Nightscout acts as a web-based CGM (Continuous Glucose Montinor) to allow
