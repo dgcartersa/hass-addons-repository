@@ -11,16 +11,14 @@ ENV LANG C.UTF-8
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
-# Repository Setup
-RUN apt-get update && apt-get install -y --no-install-recommends gnupg
-RUN curl -fsSL https://pgp.mongodb.com/server-4.4.asc | gpg -o /usr/share/keyrings/mongodb-server-4.4.gpg --dearmor \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg -o /etc/apt/keyrings/nodesource.gpg --dearmor \
-    && echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-4.4.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
-    && echo "deb [ signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+# Node Swtup
+RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh \
+    && chmod 500 nsolid_setup_deb.sh \
+    && ./nsolid_setup_deb.sh 16
 
 # Package installation
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    mongodb-org \
+    mongodb-server \
     nodejs \
     git
 
