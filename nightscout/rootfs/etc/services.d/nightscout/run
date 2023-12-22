@@ -68,7 +68,7 @@ done
 # Change current working directory
 cd /opt/app || bashio::exit.nok 'Failed changing working directory'
 
-npm install
+#npm install
 
 # Run Nightscout server
 exec node server.js
